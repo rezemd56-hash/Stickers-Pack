@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Stickers Pro - WhatsApp</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 50%, #000000 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(180deg, rgba(138, 43, 226, 0.3) 0%, transparent 100%);
+            border-bottom: 2px solid #8a2be2;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            background: linear-gradient(45deg, #8a2be2, #da70d6, #9370db);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(138, 43, 226, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .tabs-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border: 2px solid #8a2be2;
+            border-radius: 50px;
+            color: #b19cd9;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .tab.active {
+            background: linear-gradient(145deg, #8a2be2, #6a0dad);
+            color: white;
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.6);
+        }
+
+        .section { display: none; padding: 20px; max-width: 1400px; margin: 0 auto; }
+        .section.active { display: block; animation: fadeIn 0.5s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .stickers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .sticker-card {
+            background: linear-gradient(145deg, #1a1a2e, #0f0f23);
+            border: 2px solid #4a0080;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .sticker-card img { width: 100%; height: 150px; object-fit: cover; }
+
+        .sticker-number {
+            position: absolute;
+            top: 5px; left: 5px;
+            background: #8a2be2;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+        }
+
+        .whatsapp-section {
+            background: #1a1a2e;
+            border: 2px solid #8a2be2;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .whatsapp-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            background: #25d366;
+            margin: 5px;
+        }
+
+        .generate-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 30px;
+            background: #8a2be2;
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .generate-btn:disabled { background: #444; opacity: 0.7; }
+
+        .loading { display: none; text-align: center; margin: 20px; }
+        .loading.active { display: block; }
+
+        .footer { text-align: center; padding: 40px; color: #666; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>✨ Anime Stickers Pro ✨</h1>
+        <p>Genera stickers únicos sin repeticiones</p>
+    </div>
+
+    <div class="tabs-container">
+        <button class="tab active" onclick="showSection('waifu', event)">Waifu</button>
+        <button class="tab" onclick="showSection('neko', event)">Neko</button>
+        <button class="tab" onclick="showSection('trap', event)">Trap</button>
+        <button class="tab" onclick="showSection('blowjob', event)">Blowjob</button>
+        <button class="tab" onclick="showSection('shinobu', event)">Shinobu</button>
+        <button class="tab" onclick="showSection('megumin', event)">megumin</button>
+        <button class="tab" onclick="showSection('kiss', event)">kiss</button>
+    </div>
+
+    <div id="content-container">
+        <script>
+            // Categorías sincronizadas con los nombres de las APIs
+            const categories = ['waifu', 'neko', 'trap', 'blowjob', 'shinobu', 'megumin', 'kiss'];
+            categories.forEach(cat => {
+                document.write(`
+                    <div id="${cat}" class="section ${cat === 'waifu' ? 'active' : ''}">
+                        <button class="generate-btn" onclick="generateStickers('${cat}', this)">🔄 Generar 30 Stickers ${cat.toUpperCase()}</button>
+                        <div class="loading" id="loading-${cat}"><p>Cargando imágenes únicas...</p></div>
+                        <div class="stickers-grid" id="grid-${cat}"></div>
+                        <div class="whatsapp-section" id="whatsapp-${cat}" style="display: none;">
+                            <h3>📱 ¡Pack Listo! Comparte el enlace:</h3>
+                            <a href="#" class="whatsapp-btn" onclick="shareToWhatsApp('${cat}')">Enviar a WhatsApp</a>
+                        </div>
+                    </div>
+                `);
+            });
+        </script>
+    </div>
+
+    <div class="footer">
+        <p>✨ Anime Stickers Pro - 2026 ✨</p>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN DE APIS CORREGIDA ---
+        const API_ENDPOINTS = {
+            waifu: 'https://api.waifu.pics/nsfw/waifu',
+            neko: 'https://api.waifu.pics/nsfw/neko',
+            trap: 'https://api.waifu.pics/nsfw/trap',
+            blowjob: 'https://api.waifu.pics/nsfw/blowjob',
+            shinobu: 'https://api.waifu.pics/sfw/shinobu',
+            megumin: 'https://api.waifu.pics/sfw/megumin',
+            kiss: 'https://api.waifu.pics/sfw/kiss'
+        };
+
+        // Storage actualizado para incluir todas las categorías
+        const storage = { waifu: [], neko: [], trap: [], blowjob: [], shinobu: [], megumin: [], kiss: [] };
+
+        function showSection(name, e) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            const target = document.getElementById(name);
+            if(target) target.classList.add('active');
+            e.target.classList.add('active');
+        }
+
+        async function generateStickers(cat, btn) {
+            const grid = document.getElementById(`grid-${cat}`);
+            const loader = document.getElementById(`loading-${cat}`);
+            const waDiv = document.getElementById(`whatsapp-${cat}`);
+            
+            btn.disabled = true;
+            loader.classList.add('active');
+            grid.innerHTML = '';
+            waDiv.style.display = 'none';
+
+            const uniqueImages = new Set();
+            
+            try {
+                while (uniqueImages.size < 30) {
+                    const batch = Array.from({ length: 10 }, () => 
+                        fetch(API_ENDPOINTS[cat]).then(r => r.json())
+                    );
+                    const results = await Promise.all(batch);
+                    results.forEach(res => {
+                        if (res.url) uniqueImages.add(res.url);
+                    });
+                    
+                    if (uniqueImages.size < 30) await new Promise(r => setTimeout(r, 200));
+                }
+
+                storage[cat] = Array.from(uniqueImages);
+
+                storage[cat].forEach((url, i) => {
+                    const card = document.createElement('div');
+                    card.className = 'sticker-card';
+                    card.innerHTML = `<span class="sticker-number">#${i+1}</span><img src="${url}" loading="lazy">`;
+                    grid.appendChild(card);
+                });
+
+                waDiv.style.display = 'block';
+            } catch (err) {
+                console.error(err);
+                grid.innerHTML = '<p>Error al conectar con la API.</p>';
+            } finally {
+                loader.classList.remove('active');
+                btn.disabled = false;
+            }
+        }
+
+        function shareToWhatsApp(cat) {
+            const list = storage[cat];
+            if (!list.length) return;
+
+            let msg = `*✨ Pack de Stickers ${cat.toUpperCase()} ✨*\n\n`;
+            msg += `Aquí tienes una muestra de los mejores stickers:\n\n`;
+            
+            list.slice(0, 10).forEach((url, i) => {
+                msg += `${i+1}. ${url}\n`;
+            });
+
+            msg += `\n🔥 ¡Y ${list.length - 10} más generados en Anime Stickers Pro!`;
+
+            const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+            window.open(waUrl, '_blank');
+        }
+    </script>
+</body>
+</html>
